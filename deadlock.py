@@ -1,34 +1,50 @@
-import numpy as np
-def check(i):
-    for j in range(no_r):
-        if(needed[i][j]>available[j]):
-            return 0
-    return 1
-no_p = 5
-no_r = 4
-Sequence = np.zeros((no_p,),dtype=int)
-visited = np.zeros((no_p,),dtype=int)
-allocated = np.array([[4,0,0,1],[1,1,0,0],[1,2,5,4],[0,6,3,3],[0,2,1,2]])
-maximum = np.array([[6,0,1,2],[1,7,5,0],[2,3,5,6],[1,6,5,3],[1,6,5,6]])
-needed = maximum - allocated
-available = np.array([3,2,1,1])
-count = 0
-while( count < no_p ):
-    temp=0
-    for i in range( no_p ):
-        if( visited[i] == 0 ):
-            if(check(i)):
-                Sequence[count]=i;
-                count+=1
-                visited[i]=1
-                temp=1
-                for j in range(no_r):
-                    available[j] += allocated[i][j] 
-    if(temp == 0):
-        break
-if(count < no_p):
-    print('The system is Unsafe')
-else:
-    print("The system is Safe")
-    print("Safe Sequence: ",Sequence)
-    print("Available Resource:",available)
+class DeadLockDetection():
+    def main(self):
+        processes = int(input("number of processes : "))
+        resources = int(input("number of resources : "))
+        max_resources = [int(i) for i in input("maximum resources : ").split()]
+
+        print("\n-- allocated resources for each process --")
+        currently_allocated = [[int(i) for i in input(f"process {j + 1} : ").split()] for j in range(processes)]
+
+        print("\n-- maximum resources for each process --")
+        max_need = [[int(i) for i in input(f"process {j + 1} : ").split()] for j in range(processes)]
+
+        allocated = [0] * resources
+        for i in range(processes):
+            for j in range(resources):
+                allocated[j] += currently_allocated[i][j]
+        print(f"\ntotal allocated resources : {allocated}")
+
+        available = [max_resources[i] - allocated[i] for i in range(resources)]
+      
+
+        running = [True] * processes
+        count = processes
+        while count != 0:
+            safe = False
+            for i in range(processes):
+                if running[i]:
+                    executing = True
+                    for j in range(resources):
+                        if max_need[i][j] - currently_allocated[i][j] > available[j]:
+                            executing = False
+                            break
+                    if executing:
+                        print(f" Total amount of the Resource R{i}:{count}")
+                        running[i] = False
+                        count -= 1
+                        safe = True
+                        for j in range(resources):
+                            available[j] += currently_allocated[i][j]
+                        break
+            if not safe:
+                print("deadlock detected")
+                break
+
+            print("No deadlock detected")
+
+
+if __name__ == '__main__':
+    d = DeadLockDetection()
+    d.main()
